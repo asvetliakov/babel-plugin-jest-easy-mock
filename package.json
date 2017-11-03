@@ -4,7 +4,14 @@
   "description": "Easy jest mocking by automatically inlining module paths",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc",
+    "clean": "del-cli \"src/**/*.js\" \"src/**/*.map\"",
+    "prepublish": "run-s clean build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/asvetliakov/babel-plugin-jest-easy-mock.git"
   },
   "author": "Alexey Svetliakov <asvetliakov@teledini.com>",
   "license": "MIT",
@@ -12,10 +19,15 @@
     "@types/babel-core": "^6.25.3",
     "@types/jest": "^21.1.5",
     "babel-core": "^6.26.0",
+    "del-cli": "^1.1.0",
     "jest": "^21.2.1",
+    "npm-run-all": "^4.1.1",
     "ts-jest": "^21.1.4",
     "typescript": "^2.6.1",
     "typescript-snapshots-plugin": "^1.0.1"
+  },
+  "peerDependencies": {
+    "babel-core": ">=6.0"
   },
   "jest": {
     "globals": {

@@ -1,0 +1,5 @@
+dist/__snapshots__
+dist/index.spec.*
+!dist/**/*.js
+!dist/**/*.map
+.vscode
