@@ -2,12 +2,13 @@
   "name": "babel-plugin-jest-easy-mock",
   "version": "1.0.0",
   "description": "Easy jest mocking by automatically inlining module paths",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "jest",
     "build": "tsc",
-    "clean": "del-cli \"src/**/*.js\" \"src/**/*.map\"",
-    "prepublish": "run-s clean build"
+    "clean": "del-cli ./dist",
+    "prepare": "run-s clean build"
   },
   "repository": {
     "type": "git",
