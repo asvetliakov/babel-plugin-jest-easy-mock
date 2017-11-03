@@ -1,0 +1,421 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Creates simple identify mocks 1`] = `
+"jest.mock(\\"./xy\\", () => {
+        const o = {
+                \\"default\\": \\"X\\",
+                \\"Y\\": \\"Y\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"./e\\", () => {
+        const o = {
+                \\"A\\": \\"A\\",
+                \\"B\\": \\"B\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"./c\\", () => {
+        const o = {
+                \\"default\\": \\"C\\",
+                \\"C2\\": \\"C2\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"b\\", () => {
+        const o = {
+                \\"B\\": \\"B\\",
+                \\"B2\\": \\"B2\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"./a\\", () => {
+        const o = {
+                \\"default\\": \\"A\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+
+import A from \\"./a\\";
+import { B, B2 } from \\"b\\";
+import { default as C, C2 } from \\"./c\\";
+import * as E from \\"./e\\";
+import X, { Y } from \\"./xy\\";"
+`;
+
+exports[`Doesn't do anything for namespaced import without any properties 1`] = `
+"
+import * as E from \\"./e\\";"
+`;
+
+exports[`Doesn't do if there won't be jest.mockObj calls 1`] = `
+"
+import A from \\"./a\\";
+import { B } from \\"b\\";
+
+jest.mock(\\"./a\\", () => {});
+jest.dontMock(\\"b\\");"
+`;
+
+exports[`Doesn't mock modules which weren't specified in mockObj 1`] = `
+"jest.mock(\\"b\\", () => {
+        const o = {
+                \\"B\\": \\"B\\",
+                \\"B2\\": \\"B2\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+
+import A from \\"./a\\";
+import { B, B2 } from \\"b\\";"
+`;
+
+exports[`Doesnt print any module mocks which have already been mocked by jest 1`] = `
+"jest.mock(\\"b\\", () => {
+        const o = {
+                \\"B\\": \\"B\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+
+import A, { ANest } from \\"./a\\";
+import { B } from \\"b\\";
+import * as C from \\"c\\";
+
+jest.mock(\\"./a\\");
+jest.unmock(\\"c\\");"
+`;
+
+exports[`Ignores 2 or more access levels for non namespaced imports and 3 or more access levels for namespaced imports 1`] = `
+"jest.mock(\\"c\\", () => {
+        const o = {
+                \\"Nest1\\": {
+                        \\"C1\\": \\"C1\\"
+                }
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"b\\", () => {
+        const o = {};
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"./a\\", () => {
+        const o = {
+                \\"default\\": {
+                        \\"A2\\": \\"A2\\"
+                }
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+
+import A, { ANest } from \\"./a\\";
+import { B } from \\"b\\";
+import * as C from \\"c\\";"
+`;
+
+exports[`Ignores identifiers without imports 1`] = `
+"jest.mock(\\"./a\\", () => {
+        const o = {
+                \\"default\\": \\"A\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+
+import A from \\"./a\\";"
+`;
+
+exports[`Last mock specifier redefines the previous one 1`] = `
+"jest.mock(\\"b\\", () => {
+        const o = {
+                \\"B\\": \\"test3\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"./a\\", () => {
+        const o = {
+                \\"default\\": \\"A\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+
+import A from \\"./a\\";
+import { B, B2 } from \\"b\\";"
+`;
+
+exports[`Last mocked namespace overwrites nested level mocks 1`] = `
+"jest.mock(\\"c\\", () => {
+        const o = {
+                \\"C1\\": \\"C1\\",
+                \\"Nest\\": jest.fn()
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"b\\", () => {
+        const o = {
+                \\"B\\": {
+                        \\"B1\\": \\"test\\"
+                }
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"./a\\", () => {
+        const o = {
+                \\"default\\": \\"A\\",
+                \\"ANest\\": {
+                        \\"Nest\\": \\"Nest\\"
+                }
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+
+import A, { ANest } from \\"./a\\";
+import { B } from \\"b\\";
+import * as C from \\"c\\";"
+`;
+
+exports[`Merges different mockObj calls into single module mock 1`] = `
+"jest.mock(\\"./xy\\", () => {
+        const o = {
+                \\"default\\": \\"X\\",
+                \\"Y\\": \\"Y\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"./e\\", () => {
+        const o = {
+                \\"A\\": \\"A\\",
+                \\"B\\": \\"B\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"./c\\", () => {
+        const o = {
+                \\"default\\": \\"C\\",
+                \\"C2\\": \\"C2\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"b\\", () => {
+        const o = {
+                \\"B\\": \\"B\\",
+                \\"B2\\": \\"B2\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"./a\\", () => {
+        const o = {
+                \\"default\\": \\"A\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+
+import A from \\"./a\\";
+import { B, B2 } from \\"b\\";
+import { default as C, C2 } from \\"./c\\";
+import * as E from \\"./e\\";
+import X, { Y } from \\"./xy\\";"
+`;
+
+exports[`Puts mock after 'use strict' statement 1`] = `
+"
+\\"use strict\\";
+
+jest.mock(\\"c\\", () => {
+        const o = {
+                \\"A\\": \\"A\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"b\\", () => {
+        const o = {
+                \\"B\\": \\"B\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"./a\\", () => {
+        const o = {
+                \\"default\\": \\"A\\",
+                \\"ANest\\": \\"ANest\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+import A, { ANest } from \\"./a\\";
+import { B } from \\"b\\";
+import * as C from \\"c\\";"
+`;
+
+exports[`Works with custom mock implementation as second argument 1`] = `
+"jest.mock(\\"./xy\\", () => {
+        const o = {
+                \\"default\\": \\"X\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"./e\\", () => {
+        const o = {
+                \\"A\\": true,
+                \\"B\\": \\"B\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"./c\\", () => {
+        const o = {
+                \\"default\\": jest.fn(),
+                \\"C2\\": \\"C2\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"b\\", () => {
+        const o = {
+                \\"B\\": () => {},
+                \\"B2\\": \\"B2\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"./a\\", () => {
+        const o = {
+                \\"default\\": \\"test\\"
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+
+import A from \\"./a\\";
+import { B, B2 } from \\"b\\";
+import { default as C, C2 } from \\"./c\\";
+import * as E from \\"./e\\";
+import X, { Y } from \\"./xy\\";"
+`;
+
+exports[`Works with object access expressions one level deep 1`] = `
+"jest.mock(\\"c\\", () => {
+        const o = {
+                \\"C1\\": \\"C1\\",
+                \\"Nest\\": {
+                        \\"Nest1\\": \\"Nest1\\",
+                        \\"Nest2\\": \\"Nest2\\",
+                        \\"Nest3\\": \\"cnest3\\"
+                }
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"b\\", () => {
+        const o = {
+                \\"B\\": {
+                        \\"B1\\": \\"test\\"
+                }
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+jest.mock(\\"./a\\", () => {
+        const o = {
+                \\"default\\": {
+                        \\"A1\\": \\"A1\\",
+                        \\"A2\\": \\"A2\\"
+                },
+                \\"ANest\\": {
+                        \\"Nest\\": \\"Nest\\"
+                }
+        };
+        Object.defineProperty(o, \\"__esModule\\", {
+                value: true
+        });
+        return o;
+});
+
+import A, { ANest } from \\"./a\\";
+import { B } from \\"b\\";
+import * as C from \\"c\\";"
+`;

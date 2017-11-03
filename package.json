@@ -1,0 +1,39 @@
+{
+  "name": "babel-plugin-jest-easy-mock",
+  "version": "1.0.0",
+  "description": "Easy jest mocking by automatically inlining module paths",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "Alexey Svetliakov <asvetliakov@teledini.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/babel-core": "^6.25.3",
+    "@types/jest": "^21.1.5",
+    "babel-core": "^6.26.0",
+    "jest": "^21.2.1",
+    "ts-jest": "^21.1.4",
+    "typescript": "^2.6.1",
+    "typescript-snapshots-plugin": "^1.0.1"
+  },
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "skipBabel": true
+      }
+    },
+    "testEnvironment": "node",
+    "resetMocks": true,
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "transform": {
+      "\\.(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "moduleFileExtensions": [
+      "json",
+      "js",
+      "ts"
+    ],
+    "mapCoverage": true
+  }
+}
