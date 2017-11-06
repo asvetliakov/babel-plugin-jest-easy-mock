@@ -17,9 +17,9 @@
   "author": "Alexey Svetliakov <asvetliakov@teledini.com>",
   "license": "MIT",
   "devDependencies": {
+    "@babel/core": "^7.0.0-beta.31",
     "@types/babel-core": "^6.25.3",
     "@types/jest": "^21.1.5",
-    "babel-core": "^6.26.0",
     "del-cli": "^1.1.0",
     "jest": "^21.2.1",
     "npm-run-all": "^4.1.1",
@@ -28,7 +28,7 @@
     "typescript-snapshots-plugin": "^1.0.1"
   },
   "peerDependencies": {
-    "babel-core": ">=6.0"
+    "@babel/core": "^7.0.0-beta"
   },
   "jest": {
     "globals": {
@@ -42,6 +42,9 @@
     "transform": {
       "\\.(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
+    "roots": [
+      "<rootDir>/src/"
+    ],
     "moduleFileExtensions": [
       "json",
       "js",

@@ -1,4 +1,4 @@
-import { transform } from "babel-core";
+import { transform } from "@babel/core";
 import plugin from "./";
 
 it("Doesn't do if there won't be jest.mockObj calls", () => {

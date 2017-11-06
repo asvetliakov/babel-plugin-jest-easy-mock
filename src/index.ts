@@ -1,6 +1,6 @@
-import * as b from "babel-core";
-import * as t from "babel-types";
-import * as bt from "babel-traverse";
+import * as b from "@babel/core";
+import * as t from "@babel/types";
+import * as bt from "@babel/traverse";
 
 const globalJestIdentifier = "jest";
 const mockObjectIdentifier = "mockObj";
