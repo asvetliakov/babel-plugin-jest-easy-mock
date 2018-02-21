@@ -47,16 +47,18 @@ You can say you have to write paths in ```import``` calls anyway. But you're wro
 
 ## API
 
+### jest.mockObj()
+
 ```
 jest.mockObj(...args: any[]);
 ```
 
-Creates string mock with default implementation to return identifier name. Very handy to mock react components in ```ReactTestRenderer```:
+Creates string mock with default implementation to return identifier name. Very handy to mock react components for ```ReactTestRenderer```:
 
 ```jsx
 // comp1.js
 import InnerComp from "./inner";
-export const Comp = () => <div><InnerComp /></div>
+export const Comp = () => <div><InnerComp /></div>;
 
 // comp1.spec.js
 import InnerComp from "../inner";
@@ -68,12 +70,6 @@ jest.mockObj(InnerComp);
 const testRenderer = TestRenderer.create(<Comp />);
 expect(testRenderer).toMatchSnapshot(); // <div><InnerComp /></div>
 ```
-
-```js
-jest.mockFn(...args: any[]);
-```
-
-Create ```jest.fn()``` mock calls for specified symbols
 
 You can pass implementation for module export too:
 ```js
@@ -94,6 +90,78 @@ This will be transformed to:
         return o;
     });
 ```
+
+### jest.mockFn()
+
+```js
+jest.mockFn(...args: any[]);
+```
+
+Creates ```jest.fn()``` mock calls for specified symbols
+```js
+    import { B1, B2 } from "./b";
+
+    jest.mockFn(B1, B2);
+```
+
+This will be transformed to:
+```js
+    jest.mock("./b", () => {
+        const o = {
+            "B1": jest.fn(),
+            "B2": jest.fn(),
+        };
+        Object.defineProperty(o, "__esModule", { value: true });
+        return o;
+    });
+```
+
+
+### Partial mocking (experimental)
+
+Given some file:
+
+```js
+export function func1() { return "func1"; }
+export function func2() { return "func2"; }
+export const a = "a";
+```
+
+Want to mock only ```func1``` but leave original behavior for ```func2/a``` ? It's possible, put into your babel configuration:
+```json
+    plugins: [["jest-easy-mock", { requireActual: true }]]
+```
+
+And following test file:
+
+```js
+import { func1, func2, a } from "./a";
+jest.mockObj(func1, () => "test");
+
+func1(); // test
+func2(); // func2
+console.log(a); // a
+```
+
+will be transformed to:
+
+```js
+    jest.mock("./a", () => {
+        const a = require.requireActual("./a");
+
+        const o = {
+            ...a,
+            func1: () => "test",
+        };
+        Object.defineProperty(o, "__esModule", { value: true });
+        return o;
+    });
+
+```
+You need either spread transform enabled in the babel conf, or node 8.4+
+
+
+
 
 Nesting is being supported for one level deep from module export:
 ```js

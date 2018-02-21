@@ -2,10 +2,31 @@ import * as b from "@babel/core";
 import * as t from "@babel/types";
 import * as bt from "@babel/traverse";
 
-const globalJestIdentifier = "jest";
-const pluginMockIdentifiers = ["mockObj", "mockFn"];
-const jestMockCallExpressions = ["mock", "doMock", "unmock", "dontMock"];
+interface PluginConfiguration {
+    /**
+     * Jest global identifier
+     */
+    jestIdentifier: string;
+    /**
+     * Plugin identifiers
+     */
+    identifiers: string[];
+    /**
+     * Mock identifiers, tells ignore paths in these identifiers, usually must be jest.mock() and similar
+     */
+    mockIdentifiers: string[];
+    /**
+     * Require actual module in mock and mock only specified identifiers
+     */
+    requireActual: boolean;
+}
 
+const defaultConfig: PluginConfiguration = {
+    jestIdentifier: "jest",
+    mockIdentifiers: ["mock", "doMock", "unmock", "dontMock"],
+    identifiers: ["mockObj", "mockFn"],
+    requireActual: false,
+};
 
 interface ImportDefinition {
     /**
@@ -57,7 +78,12 @@ interface PluginState {
     createMockDefinition(node: t.Node, type: "name" | "mock", implementation?: t.Expression): void;
 }
 
-export default function plugin({ types: t, template: tmpl }: typeof b): b.PluginObj<PluginState> {
+export default function plugin({ types: t, template: tmpl }: typeof b, options?: PluginConfiguration): b.PluginObj<PluginState> {
+    let config: PluginConfiguration = {
+        ...defaultConfig,
+        ...options
+    };
+
     /**
      * Check if given call expression is jest mocking call
      *
@@ -72,7 +98,7 @@ export default function plugin({ types: t, template: tmpl }: typeof b): b.Plugin
         if (!t.isIdentifier(object) || !t.isIdentifier(property)) {
             return false;
         }
-        if (object.name !== globalJestIdentifier || !jestMockCallExpressions.includes(property.name)) {
+        if (object.name !== config.jestIdentifier || !config.mockIdentifiers.includes(property.name)) {
             return false;
         }
         return true;
@@ -89,15 +115,16 @@ export default function plugin({ types: t, template: tmpl }: typeof b): b.Plugin
         if (!t.isIdentifier(object) || !t.isIdentifier(property)) {
             return undefined;
         }
-        if (object.name === globalJestIdentifier && pluginMockIdentifiers.includes(property.name)) {
+        if (object.name === config.jestIdentifier && config.identifiers.includes(property.name)) {
             const name = property.name;
             return name === "mockObj" ? "name" : "mock";
         }
         return undefined;
     }
 
-    const buildArrowFunc = tmpl(`
+    const buildArrowFunc = (modulePath?: string) => tmpl(`
         () => {
+            ${modulePath ? `const a = require.requireActual("${modulePath}");` : ""}
             const o = OBJECT_EXP;
             Object.defineProperty(o, "__esModule", { value: true });
             return o;
@@ -107,7 +134,7 @@ export default function plugin({ types: t, template: tmpl }: typeof b): b.Plugin
     /**
      * Create module mock implementation
      */
-    const createModuleMockImpl = (def: ModuleMockDefinition): t.ArrowFunctionExpression => {
+    const createModuleMockImpl = (path: string, def: ModuleMockDefinition): t.ArrowFunctionExpression => {
         const topLevelProps: t.ObjectProperty[] = [];
         for (const key of Object.keys(def)) {
             const mocks = def[key];
@@ -122,7 +149,14 @@ export default function plugin({ types: t, template: tmpl }: typeof b): b.Plugin
                 continue;
             } else {
                 // Create nested object for any mock one level deep
-                const prop = t.objectProperty(t.stringLiteral(key), t.objectExpression([]));
+                const prop = t.objectProperty(
+                    t.stringLiteral(key),
+                    t.objectExpression(
+                        config.requireActual
+                            ? [t.spreadElement(t.memberExpression(t.identifier("a"), t.identifier(key))) as any]
+                        : []
+                    )
+                );
                 for (const m of mocks) {
                     if (!m.subProperty) {
                         // may overwrite any previous assignment, it's fine
@@ -131,6 +165,9 @@ export default function plugin({ types: t, template: tmpl }: typeof b): b.Plugin
                         // if mock with subProperty (i.e. Elements.a, where Elements is module export and a is the subProperty), then
                         // create another object expression
                         prop.value = prop.value && t.isObjectExpression(prop.value) ? prop.value : t.objectExpression();
+                        // if (config.requireActual) {
+                        //     prop.value.properties.push(t.spreadElement(t.identifier(key)) as any);
+                        // }
                         prop.value.properties.push(t.objectProperty(t.stringLiteral(m.subProperty), m.expression));
                     }
                 }
@@ -139,7 +176,8 @@ export default function plugin({ types: t, template: tmpl }: typeof b): b.Plugin
                 }
             }
         }
-        const arrowFunc = buildArrowFunc({ OBJECT_EXP: t.objectExpression(topLevelProps) }) as t.ExpressionStatement;
+        const objExp = t.objectExpression(config.requireActual ? [t.spreadElement(t.identifier("a")), ...topLevelProps] as any : topLevelProps);
+        const arrowFunc = buildArrowFunc(config.requireActual ? path : undefined)({ OBJECT_EXP: objExp }) as t.ExpressionStatement;
         return arrowFunc.expression as t.ArrowFunctionExpression;
         // const varDeclaration = t.variableDeclaration("const", [t.variableDeclarator(t.identifier("o"), t.objectExpression(topLevelProps))])
 
@@ -153,10 +191,10 @@ export default function plugin({ types: t, template: tmpl }: typeof b): b.Plugin
 
         return t.expressionStatement(t.callExpression(
 
-            t.memberExpression(t.identifier(globalJestIdentifier), t.identifier("mock")),
+            t.memberExpression(t.identifier(config.jestIdentifier), t.identifier("mock")),
             [
                 t.stringLiteral(source),
-                createModuleMockImpl(mocks)
+                createModuleMockImpl(source, mocks)
             ]
         ));
     }

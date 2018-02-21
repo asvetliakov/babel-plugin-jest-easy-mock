@@ -11,6 +11,7 @@ it("Doesn't do if there won't be jest.mockObj calls", () => {
     `;
 
     expect(transform(source, { plugins: [plugin] }).code).toMatchSnapshot();
+    expect(transform(source, { plugins: [[plugin, { requireActual: true }]], }).code).toMatchSnapshot();
 });
 
 it("Creates simple identify mocks", () => {
@@ -25,6 +26,7 @@ it("Creates simple identify mocks", () => {
     `;
 
     expect(transform(source, { plugins: [plugin] }).code).toMatchSnapshot();
+    expect(transform(source, { plugins: [[plugin, { requireActual: true }]], }).code).toMatchSnapshot();
 });
 
 it("Merges different mockObj calls into single module mock", () => {
@@ -43,6 +45,7 @@ it("Merges different mockObj calls into single module mock", () => {
     `;
 
     expect(transform(source, { plugins: [plugin] }).code).toMatchSnapshot();
+    expect(transform(source, { plugins: [[plugin, { requireActual: true }]], }).code).toMatchSnapshot();
 });
 
 it("Doesn't do anything for namespaced import without any properties", () => {
@@ -53,6 +56,7 @@ it("Doesn't do anything for namespaced import without any properties", () => {
     `;
 
     expect(transform(source, { plugins: [plugin] }).code).toMatchSnapshot();
+    expect(transform(source, { plugins: [[plugin, { requireActual: true }]], }).code).toMatchSnapshot();
 });
 
 it("Works with custom mock implementation as second argument", () => {
@@ -73,6 +77,7 @@ it("Works with custom mock implementation as second argument", () => {
     `;
 
     expect(transform(source, { plugins: [plugin] }).code).toMatchSnapshot();
+    expect(transform(source, { plugins: [[plugin, { requireActual: true }]], }).code).toMatchSnapshot();
 });
 
 it("Doesn't mock modules which weren't specified in mockObj", () => {
@@ -100,6 +105,7 @@ it("Last mock specifier redefines the previous one", () => {
     `;
 
     expect(transform(source, { plugins: [plugin] }).code).toMatchSnapshot();
+    expect(transform(source, { plugins: [[plugin, { requireActual: true }]], }).code).toMatchSnapshot();
 })
 
 it("Works with object access expressions one level deep", () => {
@@ -115,6 +121,7 @@ it("Works with object access expressions one level deep", () => {
     `;
 
     expect(transform(source, { plugins: [plugin] }).code).toMatchSnapshot();
+    expect(transform(source, { plugins: [[plugin, { requireActual: true }]], }).code).toMatchSnapshot();
 });
 
 it("Last mocked namespace overwrites nested level mocks", () => {
@@ -133,6 +140,7 @@ it("Last mocked namespace overwrites nested level mocks", () => {
     `;
 
     expect(transform(source, { plugins: [plugin] }).code).toMatchSnapshot();
+    expect(transform(source, { plugins: [[plugin, { requireActual: true }]], }).code).toMatchSnapshot();
 });
 
 it("Ignores 2 or more access levels for non namespaced imports and 3 or more access levels for namespaced imports", () => {
@@ -147,6 +155,7 @@ it("Ignores 2 or more access levels for non namespaced imports and 3 or more acc
     `;
 
     expect(transform(source, { plugins: [plugin] }).code).toMatchSnapshot();
+    expect(transform(source, { plugins: [[plugin, { requireActual: true }]], }).code).toMatchSnapshot();
 });
 
 it("Doesnt print any module mocks which have already been mocked by jest", () => {
@@ -162,6 +171,7 @@ it("Doesnt print any module mocks which have already been mocked by jest", () =>
     `;
 
     expect(transform(source, { plugins: [plugin] }).code).toMatchSnapshot();
+    expect(transform(source, { plugins: [[plugin, { requireActual: true }]], }).code).toMatchSnapshot();
 });
 
 it("Puts mock after 'use strict' statement", () => {
@@ -175,6 +185,7 @@ it("Puts mock after 'use strict' statement", () => {
     `;
 
     expect(transform(source, { plugins: [plugin] }).code).toMatchSnapshot();
+    expect(transform(source, { plugins: [[plugin, { requireActual: true }]], }).code).toMatchSnapshot();
 });
 
 it("Ignores identifiers without imports", () => {
@@ -185,6 +196,7 @@ it("Ignores identifiers without imports", () => {
     `;
 
     expect(transform(source, { plugins: [plugin] }).code).toMatchSnapshot();
+    expect(transform(source, { plugins: [[plugin, { requireActual: true }]], }).code).toMatchSnapshot();
 });
 
 it("Creates jest.fn() mocks", () => {
@@ -204,4 +216,5 @@ it("Creates jest.fn() mocks", () => {
     `;
 
     expect(transform(source, { plugins: [plugin] }).code).toMatchSnapshot();
+    expect(transform(source, { plugins: [[plugin, { requireActual: true }]], }).code).toMatchSnapshot();
 });
