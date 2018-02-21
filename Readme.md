@@ -8,7 +8,8 @@ The following input:
     import * as C from "./c";
 
     // this is just placeholder for transformation, will be removed from output
-    jest.mockObj(A, B, C.C1, C.C2);
+    jest.mockObj(A, C.C1);
+    jest.mockFn(B, C.C2);
 ```
 will be transformed to:
 
@@ -22,7 +23,7 @@ will be transformed to:
     });
     jest.mock("./b", () => {
         const o = {
-            "B": "B"
+            "B": jest.fn(),
         };
         Object.defineProperty(o, "__esModule", { value: true });
         return o;
@@ -30,7 +31,7 @@ will be transformed to:
     jest.mock("c", () => {
         const o = {
             "C1": "C1",
-            "C2": "C2"
+            "C2": jest.fn(),
         };
         Object.defineProperty(o, "__esModule", { value: true });
         return o;
@@ -41,14 +42,45 @@ will be transformed to:
     import * as C from "c";
 
 ```
-Notice that exports were substituted with identifier names. This is very handy for mocking react components in ```ReactTestRenderer``` if you don't want to use shallow renderer.
+
+You can say you have to write paths in ```import``` calls anyway. But you're wrong if you use IDE/editor with autoimporting feature - just start to write symbol name and you'll get the imported path for free.
+
+## API
+
+```
+jest.mockObj(...args: any[]);
+```
+
+Creates string mock with default implementation to return identifier name. Very handy to mock react components in ```ReactTestRenderer```:
+
+```jsx
+// comp1.js
+import InnerComp from "./inner";
+export const Comp = () => <div><InnerComp /></div>
+
+// comp1.spec.js
+import InnerComp from "../inner";
+import Comp from "../comp1";
+
+// Easy including with IDE autoimporting
+jest.mockObj(InnerComp);
+
+const testRenderer = TestRenderer.create(<Comp />);
+expect(testRenderer).toMatchSnapshot(); // <div><InnerComp /></div>
+```
+
+```js
+jest.mockFn(...args: any[]);
+```
+
+Create ```jest.fn()``` mock calls for specified symbols
 
 You can pass implementation for module export too:
 ```js
     import { B1, B2 } from "./b";
 
     jest.mockObj(B1, "i'm b");
-    jest.mockObj(B2, jest.fn());
+    jest.mockObj(B2, () => "test");
 ```
 
 This will be transformed to:
@@ -56,7 +88,7 @@ This will be transformed to:
     jest.mock("./b", () => {
         const o = {
             "B1": "i'm b",
-            "B2": jest.fn()
+            "B2": () => "test",
         };
         Object.defineProperty(o, "__esModule", { value: true });
         return o;

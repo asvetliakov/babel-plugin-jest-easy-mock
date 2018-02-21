@@ -1,5 +1,62 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Creates jest.fn() mocks 1`] = `
+"jest.mock(\\"./xy\\", () => {
+  const o = {
+    \\"default\\": \\"X\\",
+    \\"Y\\": jest.fn()
+  };
+  Object.defineProperty(o, \\"__esModule\\", {
+    value: true
+  });
+  return o;
+});
+jest.mock(\\"./e\\", () => {
+  const o = {
+    \\"A\\": \\"A\\",
+    \\"B\\": jest.fn()
+  };
+  Object.defineProperty(o, \\"__esModule\\", {
+    value: true
+  });
+  return o;
+});
+jest.mock(\\"./c\\", () => {
+  const o = {
+    \\"default\\": \\"C\\",
+    \\"C2\\": jest.fn()
+  };
+  Object.defineProperty(o, \\"__esModule\\", {
+    value: true
+  });
+  return o;
+});
+jest.mock(\\"b\\", () => {
+  const o = {
+    \\"B\\": jest.fn(),
+    \\"B2\\": \\"B2\\"
+  };
+  Object.defineProperty(o, \\"__esModule\\", {
+    value: true
+  });
+  return o;
+});
+jest.mock(\\"./a\\", () => {
+  const o = {
+    \\"default\\": jest.fn()
+  };
+  Object.defineProperty(o, \\"__esModule\\", {
+    value: true
+  });
+  return o;
+});
+import A from \\"./a\\";
+import { B, B2 } from \\"b\\";
+import { default as C, C2 } from \\"./c\\";
+import * as E from \\"./e\\";
+import X, { Y } from \\"./xy\\";"
+`;
+
 exports[`Creates simple identify mocks 1`] = `
 "jest.mock(\\"./xy\\", () => {
   const o = {

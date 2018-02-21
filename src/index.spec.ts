@@ -186,3 +186,22 @@ it("Ignores identifiers without imports", () => {
 
     expect(transform(source, { plugins: [plugin] }).code).toMatchSnapshot();
 });
+
+it("Creates jest.fn() mocks", () => {
+    const source = `
+        import A from "./a";
+        import { B, B2 } from "b";
+        import { default as C, C2 } from "./c";
+        import * as E from "./e";
+        import X, { Y } from "./xy";
+
+        jest.mockFn(A, B);
+        jest.mockObj(B2, C);
+        jest.mockObj(E.A);
+        jest.mockFn(C2, E.B);
+        jest.mockObj(X);
+        jest.mockFn(Y);
+    `;
+
+    expect(transform(source, { plugins: [plugin] }).code).toMatchSnapshot();
+});

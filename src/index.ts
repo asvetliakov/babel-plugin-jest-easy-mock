@@ -3,7 +3,7 @@ import * as t from "@babel/types";
 import * as bt from "@babel/traverse";
 
 const globalJestIdentifier = "jest";
-const mockObjectIdentifier = "mockObj";
+const pluginMockIdentifiers = ["mockObj", "mockFn"];
 const jestMockCallExpressions = ["mock", "doMock", "unmock", "dontMock"];
 
 
@@ -54,7 +54,7 @@ interface PluginState {
      * Top-level program instance
      */
     program: bt.NodePath<t.Program>;
-    createMockDefinition(node: t.Node, implementation?: t.Expression): void;
+    createMockDefinition(node: t.Node, type: "name" | "mock", implementation?: t.Expression): void;
 }
 
 export default function plugin({ types: t, template: tmpl }: typeof b): b.PluginObj<PluginState> {
@@ -81,18 +81,19 @@ export default function plugin({ types: t, template: tmpl }: typeof b): b.Plugin
     /**
      * Check if given call expression is jest.mockObj call
      */
-    const isMockObjCallExpession = (node: t.CallExpression) => {
+    const isMockObjCallExpession = (node: t.CallExpression): "name" | "mock" | undefined  => {
         if (!t.isMemberExpression(node.callee)) {
-            return false;
+            return undefined;
         }
         const { object, property } = node.callee;
         if (!t.isIdentifier(object) || !t.isIdentifier(property)) {
-            return false;
+            return undefined;
         }
-        if (object.name !== globalJestIdentifier || property.name !== mockObjectIdentifier) {
-            return false;
+        if (object.name === globalJestIdentifier && pluginMockIdentifiers.includes(property.name)) {
+            const name = property.name;
+            return name === "mockObj" ? "name" : "mock";
         }
-        return true;
+        return undefined;
     }
 
     const buildArrowFunc = tmpl(`
@@ -166,7 +167,7 @@ export default function plugin({ types: t, template: tmpl }: typeof b): b.Plugin
             this.existingJestMocks = [];
             this.mocks = new Map();
 
-            this.createMockDefinition = (def, impl) => {
+            this.createMockDefinition = (def, type, impl) => {
                 if (!t.isIdentifier(def) && !t.isMemberExpression(def)) {
                     return;
                 }
@@ -197,7 +198,10 @@ export default function plugin({ types: t, template: tmpl }: typeof b): b.Plugin
                 }
                 // create implementation node if not provided, default implementation is to return just the key name
                 if (!impl) {
-                    impl = t.stringLiteral(lastIdentifier);
+                    // impl = t.stringLiteral(lastIdentifier);
+                    impl = type === "name"
+                        ? t.stringLiteral(lastIdentifier)
+                        : t.callExpression(t.memberExpression(t.identifier("jest"), t.identifier("fn")), []);
                 }
                 const mockDef = this.mocks.get(accessIdentifierName) || [];
                 mockDef.push({
@@ -302,7 +306,24 @@ export default function plugin({ types: t, template: tmpl }: typeof b): b.Plugin
             },
             CallExpression(path) {
                 const node = path.node;
-                if (isJestMockCallExpression(node)) {
+                const mockType = isMockObjCallExpession(node);
+                if (mockType) {
+                    const args = node.arguments;
+                    const isWithImplementation = args.length === 2 && !t.isIdentifier(args[1]) && !t.isMemberExpression(args[1]);
+                    if (isWithImplementation) {
+                        const implementationNode = args[1];
+                        const firstArg = args[0];
+                        if (t.isExpression(implementationNode)) {
+                            this.createMockDefinition(firstArg, mockType, implementationNode);
+                        }
+                    } else {
+                        for (const arg of args) {
+                            this.createMockDefinition(arg, mockType);
+                        }
+                    }
+                    // remove call
+                    path.remove();
+                } else if (isJestMockCallExpression(node)) {
                     // need to remember existing jest.mock() and jest.doMock() to prevent mocking them again
                     const firstArg = node.arguments[0];
                     // jest.mock() requires string literal as first arg
@@ -310,22 +331,6 @@ export default function plugin({ types: t, template: tmpl }: typeof b): b.Plugin
                         return;
                     }
                     this.existingJestMocks.push(firstArg.value);
-                } else if (isMockObjCallExpession(node)) {
-                    const args = node.arguments;
-                    const isWithImplementation = args.length === 2 && !t.isIdentifier(args[1]) && !t.isMemberExpression(args[1]);
-                    if (isWithImplementation) {
-                        const implementationNode = args[1];
-                        const firstArg = args[0];
-                        if (t.isExpression(implementationNode)) {
-                            this.createMockDefinition(firstArg, implementationNode);
-                        }
-                    } else {
-                        for (const arg of args) {
-                            this.createMockDefinition(arg);
-                        }
-                    }
-                    // remove call
-                    path.remove();
                 }
             }
         }
