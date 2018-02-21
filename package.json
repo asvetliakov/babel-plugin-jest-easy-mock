@@ -4,6 +4,17 @@
   "description": "Easy jest mocking by automatically inlining module paths",
   "main": "dist/index.js",
   "types": "index.d.ts",
+  "keywords": [
+    "jest",
+    "babel",
+    "babel-plugin",
+    "babel plugin",
+    "jest plugin",
+    "jest-plugin",
+    "testing",
+    "mock",
+    "mocking"
+  ],
   "scripts": {
     "test": "jest",
     "build": "tsc",
