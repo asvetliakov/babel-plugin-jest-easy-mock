@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-jest-easy-mock",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Easy jest mocking by automatically inlining module paths",
   "main": "dist/index.js",
   "types": "index.d.ts",

@@ -4,7 +4,7 @@ exports[`Creates jest.fn() mocks 1`] = `
 "jest.mock(\\"./xy\\", () => {
   const o = {
     \\"default\\": \\"X\\",
-    \\"Y\\": jest.fn()
+    \\"Y\\": jest.fn().mockName(\\"Y\\")
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
@@ -14,7 +14,7 @@ exports[`Creates jest.fn() mocks 1`] = `
 jest.mock(\\"./e\\", () => {
   const o = {
     \\"A\\": \\"A\\",
-    \\"B\\": jest.fn()
+    \\"B\\": jest.fn().mockName(\\"E.B\\")
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
@@ -24,7 +24,7 @@ jest.mock(\\"./e\\", () => {
 jest.mock(\\"./c\\", () => {
   const o = {
     \\"default\\": \\"C\\",
-    \\"C2\\": jest.fn()
+    \\"C2\\": jest.fn().mockName(\\"C2\\")
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
@@ -33,7 +33,7 @@ jest.mock(\\"./c\\", () => {
 });
 jest.mock(\\"b\\", () => {
   const o = {
-    \\"B\\": jest.fn(),
+    \\"B\\": jest.fn().mockName(\\"B\\"),
     \\"B2\\": \\"B2\\"
   };
   Object.defineProperty(o, \\"__esModule\\", {
@@ -43,7 +43,7 @@ jest.mock(\\"b\\", () => {
 });
 jest.mock(\\"./a\\", () => {
   const o = {
-    \\"default\\": jest.fn()
+    \\"default\\": jest.fn().mockName(\\"A\\")
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
@@ -63,7 +63,7 @@ exports[`Creates jest.fn() mocks 2`] = `
 
   const o = { ...a,
     \\"default\\": \\"X\\",
-    \\"Y\\": jest.fn()
+    \\"Y\\": jest.fn().mockName(\\"Y\\")
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
@@ -75,7 +75,7 @@ jest.mock(\\"./e\\", () => {
 
   const o = { ...a,
     \\"A\\": \\"A\\",
-    \\"B\\": jest.fn()
+    \\"B\\": jest.fn().mockName(\\"E.B\\")
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
@@ -87,7 +87,7 @@ jest.mock(\\"./c\\", () => {
 
   const o = { ...a,
     \\"default\\": \\"C\\",
-    \\"C2\\": jest.fn()
+    \\"C2\\": jest.fn().mockName(\\"C2\\")
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
@@ -98,7 +98,7 @@ jest.mock(\\"b\\", () => {
   const a = require.requireActual(\\"b\\");
 
   const o = { ...a,
-    \\"B\\": jest.fn(),
+    \\"B\\": jest.fn().mockName(\\"B\\"),
     \\"B2\\": \\"B2\\"
   };
   Object.defineProperty(o, \\"__esModule\\", {
@@ -110,7 +110,7 @@ jest.mock(\\"./a\\", () => {
   const a = require.requireActual(\\"./a\\");
 
   const o = { ...a,
-    \\"default\\": jest.fn()
+    \\"default\\": jest.fn().mockName(\\"A\\")
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
@@ -770,8 +770,8 @@ exports[`Works with custom identifiers 1`] = `
 });
 jest.mock(\\"./e\\", () => {
   const o = {
-    \\"A\\": jest.fn(),
-    \\"B\\": jest.fn()
+    \\"A\\": jest.fn().mockName(\\"E.A\\"),
+    \\"B\\": jest.fn().mockName(\\"E.B\\")
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
@@ -780,7 +780,7 @@ jest.mock(\\"./e\\", () => {
 });
 jest.mock(\\"./c\\", () => {
   const o = {
-    \\"default\\": jest.fn()
+    \\"default\\": jest.fn().mockName(\\"C\\")
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
@@ -799,7 +799,7 @@ jest.mock(\\"b\\", () => {
 });
 jest.mock(\\"./a\\", () => {
   const o = {
-    \\"default\\": jest.fn()
+    \\"default\\": jest.fn().mockName(\\"A\\")
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
@@ -832,8 +832,8 @@ jest.mock(\\"./e\\", () => {
   const a = require.requireActual(\\"./e\\");
 
   const o = { ...a,
-    \\"A\\": jest.fn(),
-    \\"B\\": jest.fn()
+    \\"A\\": jest.fn().mockName(\\"E.A\\"),
+    \\"B\\": jest.fn().mockName(\\"E.B\\")
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
@@ -844,7 +844,7 @@ jest.mock(\\"./c\\", () => {
   const a = require.requireActual(\\"./c\\");
 
   const o = { ...a,
-    \\"default\\": jest.fn()
+    \\"default\\": jest.fn().mockName(\\"C\\")
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
@@ -867,7 +867,7 @@ jest.mock(\\"./a\\", () => {
   const a = require.requireActual(\\"./a\\");
 
   const o = { ...a,
-    \\"default\\": jest.fn()
+    \\"default\\": jest.fn().mockName(\\"A\\")
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true

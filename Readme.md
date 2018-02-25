@@ -23,7 +23,7 @@ will be transformed to:
     });
     jest.mock("./b", () => {
         const o = {
-            "B": jest.fn(),
+            "B": jest.fn().mockName("B"),
         };
         Object.defineProperty(o, "__esModule", { value: true });
         return o;
@@ -31,7 +31,7 @@ will be transformed to:
     jest.mock("c", () => {
         const o = {
             "C1": "C1",
-            "C2": jest.fn(),
+            "C2": jest.fn().mockName("C.C2"),
         };
         Object.defineProperty(o, "__esModule", { value: true });
         return o;
@@ -93,6 +93,8 @@ This will be transformed to:
 
 ### jest.mockFn()
 
+*Note* Requires jest 22.0+
+
 ```js
 jest.mockFn(...args: any[]);
 ```
@@ -108,8 +110,8 @@ This will be transformed to:
 ```js
     jest.mock("./b", () => {
         const o = {
-            "B1": jest.fn(),
-            "B2": jest.fn(),
+            "B1": jest.fn().mockName("B1"),
+            "B2": jest.fn().mockName("B2"),
         };
         Object.defineProperty(o, "__esModule", { value: true });
         return o;

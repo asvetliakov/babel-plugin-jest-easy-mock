@@ -101,7 +101,7 @@ interface PluginState {
      * Top-level program instance
      */
     program: bt.NodePath<t.Program>;
-    createMockDefinition(node: t.Node, type: "name" | "mock", implementation?: t.Expression): void;
+    createMockDefinition(node: t.Node, type: "name" | "mock", expName: string, implementation?: t.Expression): void;
 }
 
 export default function plugin({ types: t, template: tmpl }: typeof b, options?: PluginConfiguration): b.PluginObj<PluginState> {
@@ -113,7 +113,10 @@ export default function plugin({ types: t, template: tmpl }: typeof b, options?:
     /**
      * Return full name of member expression
      */
-    const getNameOfCalle = (node: t.MemberExpression | t.Identifier, name: string = ""): string => {
+    const getNameOfExpression = (node: any, name: string = ""): string => {
+        if (!t.isIdentifier(node) && !t.isMemberExpression(node)) {
+            return "";
+        }
         if (t.isIdentifier(node)) {
             return name += name ? "." + node.name : node.name;
         }
@@ -121,12 +124,12 @@ export default function plugin({ types: t, template: tmpl }: typeof b, options?:
         if (t.isIdentifier(object)) {
             name += name ? "." + object.name : object.name;
         } else if (t.isMemberExpression(object)) {
-            name += name ? "." + getNameOfCalle(object) : getNameOfCalle(object);
+            name += name ? "." + getNameOfExpression(object) : getNameOfExpression(object);
         }
         if (t.isIdentifier(property)) {
             name += name ? "." + property.name : property.name;
         } else if (t.isMemberExpression(property)) {
-            name += name ? "." + getNameOfCalle(property) : getNameOfCalle(property);
+            name += name ? "." + getNameOfExpression(property) : getNameOfExpression(property);
         }
         return name;
     }
@@ -141,7 +144,7 @@ export default function plugin({ types: t, template: tmpl }: typeof b, options?:
         if (!t.isIdentifier(node.callee) && !t.isMemberExpression(node.callee)) {
             return false;
         }
-        let fullCalle = getNameOfCalle(node.callee);
+        let fullCalle = getNameOfExpression(node.callee);
         if (!fullCalle) {
             return false;
         }
@@ -155,7 +158,7 @@ export default function plugin({ types: t, template: tmpl }: typeof b, options?:
         if (!t.isIdentifier(node.callee) && !t.isMemberExpression(node.callee)) {
             return undefined;
         }
-        let fullCalle = getNameOfCalle(node.callee);
+        let fullCalle = getNameOfExpression(node.callee);
         if (!fullCalle) {
             return;
         }
@@ -249,7 +252,7 @@ export default function plugin({ types: t, template: tmpl }: typeof b, options?:
             this.existingJestMocks = [];
             this.mocks = new Map();
 
-            this.createMockDefinition = (def, type, impl) => {
+            this.createMockDefinition = (def, type, name, impl) => {
                 if (!t.isIdentifier(def) && !t.isMemberExpression(def)) {
                     return;
                 }
@@ -283,7 +286,13 @@ export default function plugin({ types: t, template: tmpl }: typeof b, options?:
                     // impl = t.stringLiteral(lastIdentifier);
                     impl = type === "name"
                         ? t.stringLiteral(lastIdentifier)
-                        : t.callExpression(t.memberExpression(t.identifier("jest"), t.identifier("fn")), []);
+                        : t.callExpression(
+                            t.memberExpression(
+                                t.callExpression(t.memberExpression(t.identifier("jest"), t.identifier("fn")), []),
+                                t.identifier("mockName"),
+                            ),
+                            [t.stringLiteral(name)],
+                        );
                 }
                 const mockDef = this.mocks.get(accessIdentifierName) || [];
                 mockDef.push({
@@ -395,12 +404,20 @@ export default function plugin({ types: t, template: tmpl }: typeof b, options?:
                     if (isWithImplementation) {
                         const implementationNode = args[1];
                         const firstArg = args[0];
+                        const expName = getNameOfExpression(firstArg);
+                        if (!expName && mockIdentifier.type === "mock") {
+                            return;
+                        }
                         if (t.isExpression(implementationNode)) {
-                            this.createMockDefinition(firstArg, mockIdentifier.type, implementationNode);
+                            this.createMockDefinition(firstArg, mockIdentifier.type, expName, implementationNode);
                         }
                     } else {
                         for (const arg of args) {
-                            this.createMockDefinition(arg, mockIdentifier.type);
+                            const expName = getNameOfExpression(arg);
+                            if (!expName && mockIdentifier.type === "mock") {
+                                continue;
+                            }
+                            this.createMockDefinition(arg, mockIdentifier.type, expName);
                         }
                     }
                     // remove call
