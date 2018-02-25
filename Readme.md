@@ -219,14 +219,84 @@ will be transformed to:
 
 ```npm install babel-plugin-jest-easy-mock --save-dev```
 
-Add to your ```.babelrc```:
+Add to your ```.babelrc``` or in ```.babelrc.js```:
 
 ```
-    "env": {
-        "test": {
-            plugins: ["jest-easy-mock"]
+    plugins: ["jest-easy-mock"]
+```
+
+
+### Configuration
+
+Plugin exposes few configuration options:
+
+```jestIdentifier``` - Jest identifier used to create actual mocks
+
+```requireActual``` - Do ```require.requireActual``` for partial module mocks
+
+```ignoreIdentifiers``` - List of call expression identifiers to ignore the mocking
+
+```identfiers``` - List of call identifiers configuration to do the mocking
+
+```ts
+interface IdentifierConfiguration {
+    /**
+     * Identifier name
+     */
+    name: string;
+    /**
+     * Remove identifier from transpilation output
+     */
+    remove: boolean;
+    /**
+     * Identifier type. "name" will mock with import name, "mock" will mock with jest.fn()
+     */
+    type: "name" | "mock",
+}
+```
+
+Default config:
+
+```js
+{
+    jestIdentifier: "jest",
+    mockIdentifiers: ["jest.mock", "jest.doMock", "jest.unmock", "jest.dontMock"],
+    identifiers: [
+        {
+            name: "jest.mockObj",
+            remove: true,
+            type: "name",
+        },
+        {
+            name: "jest.mockFn",
+            remove: true,
+            type: "mock",
         }
-    }
+    ],
+    requireActual: false,
+}
+```
+
+To pass custom conviguration add to your babelrc/baberc.js:
+
+```json
+    "plugins": [
+        ["jest-easy-mock", {
+            "requireActual": true,
+            "identifiers": [
+                {
+                    "name": "a.b.c",
+                    "type": "mock",
+                    "remove": false
+                },
+                {
+                    "name": "jest.mockObj",
+                    "type": "name",
+                    "remove": true
+                }
+            ]
+        }]
+    ]
 ```
 
 #### Usage with Typescript

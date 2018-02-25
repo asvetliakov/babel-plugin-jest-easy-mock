@@ -758,6 +758,132 @@ import { B } from \\"b\\";
 import * as C from \\"c\\";"
 `;
 
+exports[`Works with custom identifiers 1`] = `
+"jest.mock(\\"./xy\\", () => {
+  const o = {
+    \\"default\\": \\"X\\"
+  };
+  Object.defineProperty(o, \\"__esModule\\", {
+    value: true
+  });
+  return o;
+});
+jest.mock(\\"./e\\", () => {
+  const o = {
+    \\"A\\": jest.fn(),
+    \\"B\\": jest.fn()
+  };
+  Object.defineProperty(o, \\"__esModule\\", {
+    value: true
+  });
+  return o;
+});
+jest.mock(\\"./c\\", () => {
+  const o = {
+    \\"default\\": jest.fn()
+  };
+  Object.defineProperty(o, \\"__esModule\\", {
+    value: true
+  });
+  return o;
+});
+jest.mock(\\"b\\", () => {
+  const o = {
+    \\"B\\": \\"B\\",
+    \\"B2\\": \\"B2\\"
+  };
+  Object.defineProperty(o, \\"__esModule\\", {
+    value: true
+  });
+  return o;
+});
+jest.mock(\\"./a\\", () => {
+  const o = {
+    \\"default\\": jest.fn()
+  };
+  Object.defineProperty(o, \\"__esModule\\", {
+    value: true
+  });
+  return o;
+});
+import A from \\"./a\\";
+import { B, B2 } from \\"b\\";
+import { default as C, C2 } from \\"./c\\";
+import * as E from \\"./e\\";
+import X, { Y } from \\"./xy\\";
+a.func2(B, B2, C);
+jest.mockObj(X);
+nonMocked(Y);"
+`;
+
+exports[`Works with custom identifiers 2`] = `
+"jest.mock(\\"./xy\\", () => {
+  const a = require.requireActual(\\"./xy\\");
+
+  const o = { ...a,
+    \\"default\\": \\"X\\"
+  };
+  Object.defineProperty(o, \\"__esModule\\", {
+    value: true
+  });
+  return o;
+});
+jest.mock(\\"./e\\", () => {
+  const a = require.requireActual(\\"./e\\");
+
+  const o = { ...a,
+    \\"A\\": jest.fn(),
+    \\"B\\": jest.fn()
+  };
+  Object.defineProperty(o, \\"__esModule\\", {
+    value: true
+  });
+  return o;
+});
+jest.mock(\\"./c\\", () => {
+  const a = require.requireActual(\\"./c\\");
+
+  const o = { ...a,
+    \\"default\\": jest.fn()
+  };
+  Object.defineProperty(o, \\"__esModule\\", {
+    value: true
+  });
+  return o;
+});
+jest.mock(\\"b\\", () => {
+  const a = require.requireActual(\\"b\\");
+
+  const o = { ...a,
+    \\"B\\": \\"B\\",
+    \\"B2\\": \\"B2\\"
+  };
+  Object.defineProperty(o, \\"__esModule\\", {
+    value: true
+  });
+  return o;
+});
+jest.mock(\\"./a\\", () => {
+  const a = require.requireActual(\\"./a\\");
+
+  const o = { ...a,
+    \\"default\\": jest.fn()
+  };
+  Object.defineProperty(o, \\"__esModule\\", {
+    value: true
+  });
+  return o;
+});
+import A from \\"./a\\";
+import { B, B2 } from \\"b\\";
+import { default as C, C2 } from \\"./c\\";
+import * as E from \\"./e\\";
+import X, { Y } from \\"./xy\\";
+a.func2(B, B2, C);
+jest.mockObj(X);
+nonMocked(Y);"
+`;
+
 exports[`Works with custom mock implementation as second argument 1`] = `
 "jest.mock(\\"./xy\\", () => {
   const o = {

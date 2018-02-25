@@ -2,6 +2,21 @@ import * as b from "@babel/core";
 import * as t from "@babel/types";
 import * as bt from "@babel/traverse";
 
+interface IdentifierConfiguration {
+    /**
+     * Identifier name
+     */
+    name: string;
+    /**
+     * Remove identifier from transpilation output
+     */
+    remove: boolean;
+    /**
+     * Identifier type. "name" will mock with import name, "mock" will mock with jest.fn()
+     */
+    type: "name" | "mock",
+}
+
 interface PluginConfiguration {
     /**
      * Jest global identifier
@@ -10,11 +25,11 @@ interface PluginConfiguration {
     /**
      * Plugin identifiers
      */
-    identifiers: string[];
+    identifiers: IdentifierConfiguration[];
     /**
      * Mock identifiers, tells ignore paths in these identifiers, usually must be jest.mock() and similar
      */
-    mockIdentifiers: string[];
+    ignoreIdentifiers: string[];
     /**
      * Require actual module in mock and mock only specified identifiers
      */
@@ -23,8 +38,19 @@ interface PluginConfiguration {
 
 const defaultConfig: PluginConfiguration = {
     jestIdentifier: "jest",
-    mockIdentifiers: ["mock", "doMock", "unmock", "dontMock"],
-    identifiers: ["mockObj", "mockFn"],
+    ignoreIdentifiers: ["jest.mock", "jest.doMock", "jest.unmock", "jest.dontMock"],
+    identifiers: [
+        {
+            name: "jest.mockObj",
+            remove: true,
+            type: "name",
+        },
+        {
+            name: "jest.mockFn",
+            remove: true,
+            type: "mock",
+        }
+    ],
     requireActual: false,
 };
 
@@ -85,41 +111,59 @@ export default function plugin({ types: t, template: tmpl }: typeof b, options?:
     };
 
     /**
+     * Return full name of member expression
+     */
+    const getNameOfCalle = (node: t.MemberExpression | t.Identifier, name: string = ""): string => {
+        if (t.isIdentifier(node)) {
+            return name += name ? "." + node.name : node.name;
+        }
+        const { object, property } = node;
+        if (t.isIdentifier(object)) {
+            name += name ? "." + object.name : object.name;
+        } else if (t.isMemberExpression(object)) {
+            name += name ? "." + getNameOfCalle(object) : getNameOfCalle(object);
+        }
+        if (t.isIdentifier(property)) {
+            name += name ? "." + property.name : property.name;
+        } else if (t.isMemberExpression(property)) {
+            name += name ? "." + getNameOfCalle(property) : getNameOfCalle(property);
+        }
+        return name;
+    }
+
+    /**
      * Check if given call expression is jest mocking call
      *
      * @param node Node to check
      * @returns True if node is jest mock call expression
      */
     const isJestMockCallExpression = (node: t.CallExpression) => {
-        if (!t.isMemberExpression(node.callee)) {
+        if (!t.isIdentifier(node.callee) && !t.isMemberExpression(node.callee)) {
             return false;
         }
-        const { object, property } = node.callee;
-        if (!t.isIdentifier(object) || !t.isIdentifier(property)) {
+        let fullCalle = getNameOfCalle(node.callee);
+        if (!fullCalle) {
             return false;
         }
-        if (object.name !== config.jestIdentifier || !config.mockIdentifiers.includes(property.name)) {
-            return false;
-        }
-        return true;
+        return !!config.ignoreIdentifiers.find(i => i === fullCalle);
     }
 
     /**
      * Check if given call expression is jest.mockObj call
      */
-    const isMockObjCallExpession = (node: t.CallExpression): "name" | "mock" | undefined  => {
-        if (!t.isMemberExpression(node.callee)) {
+    const isMockObjCallExpession = (node: t.CallExpression): IdentifierConfiguration | undefined  => {
+        if (!t.isIdentifier(node.callee) && !t.isMemberExpression(node.callee)) {
             return undefined;
         }
-        const { object, property } = node.callee;
-        if (!t.isIdentifier(object) || !t.isIdentifier(property)) {
-            return undefined;
+        let fullCalle = getNameOfCalle(node.callee);
+        if (!fullCalle) {
+            return;
         }
-        if (object.name === config.jestIdentifier && config.identifiers.includes(property.name)) {
-            const name = property.name;
-            return name === "mockObj" ? "name" : "mock";
+        const knownIdentifier = config.identifiers.find(i => i.name === fullCalle);
+        if (!knownIdentifier) {
+            return;
         }
-        return undefined;
+        return knownIdentifier;
     }
 
     const buildArrowFunc = (modulePath?: string) => tmpl(`
@@ -344,23 +388,25 @@ export default function plugin({ types: t, template: tmpl }: typeof b, options?:
             },
             CallExpression(path) {
                 const node = path.node;
-                const mockType = isMockObjCallExpession(node);
-                if (mockType) {
+                const mockIdentifier = isMockObjCallExpession(node);
+                if (mockIdentifier) {
                     const args = node.arguments;
                     const isWithImplementation = args.length === 2 && !t.isIdentifier(args[1]) && !t.isMemberExpression(args[1]);
                     if (isWithImplementation) {
                         const implementationNode = args[1];
                         const firstArg = args[0];
                         if (t.isExpression(implementationNode)) {
-                            this.createMockDefinition(firstArg, mockType, implementationNode);
+                            this.createMockDefinition(firstArg, mockIdentifier.type, implementationNode);
                         }
                     } else {
                         for (const arg of args) {
-                            this.createMockDefinition(arg, mockType);
+                            this.createMockDefinition(arg, mockIdentifier.type);
                         }
                     }
                     // remove call
-                    path.remove();
+                    if (mockIdentifier.remove) {
+                        path.remove();
+                    }
                 } else if (isJestMockCallExpression(node)) {
                     // need to remember existing jest.mock() and jest.doMock() to prevent mocking them again
                     const firstArg = node.arguments[0];

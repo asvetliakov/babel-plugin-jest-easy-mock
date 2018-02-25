@@ -218,3 +218,46 @@ it("Creates jest.fn() mocks", () => {
     expect(transform(source, { plugins: [plugin] }).code).toMatchSnapshot();
     expect(transform(source, { plugins: [[plugin, { requireActual: true }]], }).code).toMatchSnapshot();
 });
+
+it("Works with custom identifiers", () => {
+    const source = `
+        import A from "./a";
+        import { B, B2 } from "b";
+        import { default as C, C2 } from "./c";
+        import * as E from "./e";
+        import X, { Y } from "./xy";
+
+        func1(A);
+        a.func2(B, B2, C);
+        a.b.c.func3(E.A, E.B);
+        func1(C);
+        jest.mockObj(X);
+        nonMocked(Y);
+    `;
+
+    const customIdentifiers = [
+        {
+            name: "func1",
+            remove: true,
+            type: "mock",
+        },
+        {
+            name: "a.func2",
+            remove: false,
+            type: "name",
+        },
+        {
+            name: "a.b.c.func3",
+            remove: true,
+            type: "mock",
+        },
+        {
+            name: "jest.mockObj",
+            remove: false,
+            type: "name"
+        },
+    ];
+
+    expect(transform(source, { plugins: [[plugin, { identifiers: customIdentifiers }]] }).code).toMatchSnapshot();
+    expect(transform(source, { plugins: [[plugin, { requireActual: true, identifiers: customIdentifiers }]], }).code).toMatchSnapshot();
+});
