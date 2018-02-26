@@ -210,13 +210,31 @@ it("Creates jest.fn() mocks", () => {
         jest.mockFn(A, B);
         jest.mockObj(B2, C);
         jest.mockObj(E.A);
-        jest.mockFn(C2, E.B);
-        jest.mockObj(X);
-        jest.mockFn(Y);
+        jest.mockFn(C2, E.B, C.Inner, E.A.K);
+        jest.mockObj(Y);
+        jest.mockFn(X);
     `;
 
     expect(transform(source, { plugins: [plugin] }).code).toMatchSnapshot();
     expect(transform(source, { plugins: [[plugin, { requireActual: true }]], }).code).toMatchSnapshot();
+});
+
+it("Correct spread for overwritten deeplevel", () => {
+    const source = `
+        import * as E from "./e";
+
+        jest.mockObj(E.A);
+        jest.mockFn(E.A.K);
+    `;
+    const source2 = `
+        import * as E from "./e";
+
+        jest.mockFn(E.A.K);
+        jest.mockObj(E.A);
+    `;
+
+    expect(transform(source, { plugins: [[plugin, { requireActual: true }]], }).code).toMatchSnapshot();
+    expect(transform(source2, { plugins: [[plugin, { requireActual: true }]], }).code).toMatchSnapshot();
 });
 
 it("Works with custom identifiers", () => {

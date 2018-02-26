@@ -1,33 +1,87 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Creates jest.fn() mocks 1`] = `
-"jest.mock(\\"./xy\\", () => {
-  const o = {
-    \\"default\\": \\"X\\",
-    \\"Y\\": jest.fn().mockName(\\"Y\\")
+exports[`Correct spread for overwritten deeplevel 1`] = `
+"jest.mock(\\"./e\\", () => {
+  const a = require.requireActual(\\"./e\\");
+
+  const o = { ...a,
+    \\"A\\": { ...a.A,
+      \\"K\\": jest.fn().mockName(\\"E.A.K\\")
+    }
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
+  });
+  Object.defineProperty(o.A.K, \\"name\\", {
+    value: \\"E.A.K\\"
+  });
+  return o;
+});
+import * as E from \\"./e\\";"
+`;
+
+exports[`Correct spread for overwritten deeplevel 2`] = `
+"jest.mock(\\"./e\\", () => {
+  const a = require.requireActual(\\"./e\\");
+
+  const o = { ...a,
+    \\"A\\": \\"A\\"
+  };
+  Object.defineProperty(o, \\"__esModule\\", {
+    value: true
+  });
+  return o;
+});
+import * as E from \\"./e\\";"
+`;
+
+exports[`Creates jest.fn() mocks 1`] = `
+"jest.mock(\\"./xy\\", () => {
+  const o = {
+    \\"default\\": jest.fn().mockName(\\"X\\"),
+    \\"Y\\": \\"Y\\"
+  };
+  Object.defineProperty(o, \\"__esModule\\", {
+    value: true
+  });
+  Object.defineProperty(o.default, \\"name\\", {
+    value: \\"X\\"
   });
   return o;
 });
 jest.mock(\\"./e\\", () => {
   const o = {
-    \\"A\\": \\"A\\",
+    \\"A\\": {
+      \\"K\\": jest.fn().mockName(\\"E.A.K\\")
+    },
     \\"B\\": jest.fn().mockName(\\"E.B\\")
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
   });
+  Object.defineProperty(o.A.K, \\"name\\", {
+    value: \\"E.A.K\\"
+  });
+  Object.defineProperty(o.B, \\"name\\", {
+    value: \\"E.B\\"
+  });
   return o;
 });
 jest.mock(\\"./c\\", () => {
   const o = {
-    \\"default\\": \\"C\\",
+    \\"default\\": {
+      \\"Inner\\": jest.fn().mockName(\\"C.Inner\\")
+    },
     \\"C2\\": jest.fn().mockName(\\"C2\\")
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
+  });
+  Object.defineProperty(o.default.Inner, \\"name\\", {
+    value: \\"C.Inner\\"
+  });
+  Object.defineProperty(o.C2, \\"name\\", {
+    value: \\"C2\\"
   });
   return o;
 });
@@ -39,6 +93,9 @@ jest.mock(\\"b\\", () => {
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
   });
+  Object.defineProperty(o.B, \\"name\\", {
+    value: \\"B\\"
+  });
   return o;
 });
 jest.mock(\\"./a\\", () => {
@@ -47,6 +104,9 @@ jest.mock(\\"./a\\", () => {
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
+  });
+  Object.defineProperty(o.default, \\"name\\", {
+    value: \\"A\\"
   });
   return o;
 });
@@ -62,11 +122,14 @@ exports[`Creates jest.fn() mocks 2`] = `
   const a = require.requireActual(\\"./xy\\");
 
   const o = { ...a,
-    \\"default\\": \\"X\\",
-    \\"Y\\": jest.fn().mockName(\\"Y\\")
+    \\"default\\": jest.fn().mockName(\\"X\\"),
+    \\"Y\\": \\"Y\\"
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
+  });
+  Object.defineProperty(o.default, \\"name\\", {
+    value: \\"X\\"
   });
   return o;
 });
@@ -74,11 +137,19 @@ jest.mock(\\"./e\\", () => {
   const a = require.requireActual(\\"./e\\");
 
   const o = { ...a,
-    \\"A\\": \\"A\\",
+    \\"A\\": { ...a.A,
+      \\"K\\": jest.fn().mockName(\\"E.A.K\\")
+    },
     \\"B\\": jest.fn().mockName(\\"E.B\\")
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
+  });
+  Object.defineProperty(o.A.K, \\"name\\", {
+    value: \\"E.A.K\\"
+  });
+  Object.defineProperty(o.B, \\"name\\", {
+    value: \\"E.B\\"
   });
   return o;
 });
@@ -86,11 +157,19 @@ jest.mock(\\"./c\\", () => {
   const a = require.requireActual(\\"./c\\");
 
   const o = { ...a,
-    \\"default\\": \\"C\\",
+    \\"default\\": { ...a.default,
+      \\"Inner\\": jest.fn().mockName(\\"C.Inner\\")
+    },
     \\"C2\\": jest.fn().mockName(\\"C2\\")
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
+  });
+  Object.defineProperty(o.default.Inner, \\"name\\", {
+    value: \\"C.Inner\\"
+  });
+  Object.defineProperty(o.C2, \\"name\\", {
+    value: \\"C2\\"
   });
   return o;
 });
@@ -104,6 +183,9 @@ jest.mock(\\"b\\", () => {
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
   });
+  Object.defineProperty(o.B, \\"name\\", {
+    value: \\"B\\"
+  });
   return o;
 });
 jest.mock(\\"./a\\", () => {
@@ -114,6 +196,9 @@ jest.mock(\\"./a\\", () => {
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
+  });
+  Object.defineProperty(o.default, \\"name\\", {
+    value: \\"A\\"
   });
   return o;
 });
@@ -776,6 +861,12 @@ jest.mock(\\"./e\\", () => {
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
   });
+  Object.defineProperty(o.A, \\"name\\", {
+    value: \\"E.A\\"
+  });
+  Object.defineProperty(o.B, \\"name\\", {
+    value: \\"E.B\\"
+  });
   return o;
 });
 jest.mock(\\"./c\\", () => {
@@ -784,6 +875,9 @@ jest.mock(\\"./c\\", () => {
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
+  });
+  Object.defineProperty(o.default, \\"name\\", {
+    value: \\"C\\"
   });
   return o;
 });
@@ -803,6 +897,9 @@ jest.mock(\\"./a\\", () => {
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
+  });
+  Object.defineProperty(o.default, \\"name\\", {
+    value: \\"A\\"
   });
   return o;
 });
@@ -838,6 +935,12 @@ jest.mock(\\"./e\\", () => {
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
   });
+  Object.defineProperty(o.A, \\"name\\", {
+    value: \\"E.A\\"
+  });
+  Object.defineProperty(o.B, \\"name\\", {
+    value: \\"E.B\\"
+  });
   return o;
 });
 jest.mock(\\"./c\\", () => {
@@ -848,6 +951,9 @@ jest.mock(\\"./c\\", () => {
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
+  });
+  Object.defineProperty(o.default, \\"name\\", {
+    value: \\"C\\"
   });
   return o;
 });
@@ -871,6 +977,9 @@ jest.mock(\\"./a\\", () => {
   };
   Object.defineProperty(o, \\"__esModule\\", {
     value: true
+  });
+  Object.defineProperty(o.default, \\"name\\", {
+    value: \\"A\\"
   });
   return o;
 });

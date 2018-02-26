@@ -74,6 +74,10 @@ interface MockDefinition {
      * Mock implementation expression
      */
     expression: t.Expression;
+    /**
+     * Mock type
+     */
+    type: "mock" | "name";
 }
 
 interface ModuleMockDefinition {
@@ -81,7 +85,12 @@ interface ModuleMockDefinition {
      * Key is the access identifier IN the module, for example import * as Utils, Utils.a -> access identifier is a
      * import { a } -> access identifier is a, import A -> access identifier is default
      */
-    [key: string]: Array<{ expression: t.Expression, subProperty?: string }>;
+    [key: string]: Array<{
+        expression: t.Expression,
+        subProperty?: string,
+        type: "mock" | "name",
+        importDef: ImportDefinition,
+    }>;
 }
 
 interface PluginState {
@@ -169,20 +178,24 @@ export default function plugin({ types: t, template: tmpl }: typeof b, options?:
         return knownIdentifier;
     }
 
-    const buildArrowFunc = (modulePath?: string) => tmpl(`
+    const buildArrowFunc = (statements: string[], modulePath?: string) => tmpl(`
         () => {
             ${modulePath ? `const a = require.requireActual("${modulePath}");` : ""}
             const o = OBJECT_EXP;
             Object.defineProperty(o, "__esModule", { value: true });
+            ${statements.length > 0 ? statements.join("\n") : ""}
             return o;
         }
-    `);
+    `, { placeholderPattern: false, placeholderWhitelist: new Set(["OBJECT_EXP"]) } as any);
+
+    const buildNameStatement = (key: string, name: string) => `Object.defineProperty(o.${key}, "name", { value: "${name}" });`;
 
     /**
      * Create module mock implementation
      */
     const createModuleMockImpl = (path: string, def: ModuleMockDefinition): t.ArrowFunctionExpression => {
         const topLevelProps: t.ObjectProperty[] = [];
+        const statements: string[][] = [];
         for (const key of Object.keys(def)) {
             const mocks = def[key];
             if (mocks.length === 0) {
@@ -193,16 +206,20 @@ export default function plugin({ types: t, template: tmpl }: typeof b, options?:
                 // last one overwrites previous
                 const lastMock = mocks.slice(-1)[0];
                 topLevelProps.push(t.objectProperty(t.stringLiteral(key), lastMock.expression));
+                if (lastMock.type === "mock") {
+                    statements.push([
+                        key,
+                        lastMock.importDef.type === "default"
+                            ? lastMock.importDef.name
+                            : lastMock.importDef.type === "namespace" ? `${lastMock.importDef.name}.${key}` : key
+                    ]);
+                }
                 continue;
             } else {
                 // Create nested object for any mock one level deep
                 const prop = t.objectProperty(
                     t.stringLiteral(key),
-                    t.objectExpression(
-                        config.requireActual
-                            ? [t.spreadElement(t.memberExpression(t.identifier("a"), t.identifier(key))) as any]
-                        : []
-                    )
+                    t.objectExpression([]),
                 );
                 for (const m of mocks) {
                     if (!m.subProperty) {
@@ -211,11 +228,16 @@ export default function plugin({ types: t, template: tmpl }: typeof b, options?:
                     } else {
                         // if mock with subProperty (i.e. Elements.a, where Elements is module export and a is the subProperty), then
                         // create another object expression
-                        prop.value = prop.value && t.isObjectExpression(prop.value) ? prop.value : t.objectExpression();
-                        // if (config.requireActual) {
-                        //     prop.value.properties.push(t.spreadElement(t.identifier(key)) as any);
-                        // }
+                        prop.value = prop.value && t.isObjectExpression(prop.value) ? prop.value : t.objectExpression([]);
+                        // also spread it if required and hasn't spreaded yet
+                        if (config.requireActual && prop.value.properties.length === 0) {
+                            prop.value.properties.push(t.spreadElement(t.memberExpression(t.identifier("a"), t.identifier(key))) as any)
+                        }
                         prop.value.properties.push(t.objectProperty(t.stringLiteral(m.subProperty), m.expression));
+                        if (m.type === "mock") {
+                            const oName = m.importDef.type === "default" ? `${m.importDef.name}.${m.subProperty}` : `${m.importDef.name}.${key}.${m.subProperty}`;
+                            statements.push([`${key}.${m.subProperty}`, oName]);
+                        }
                     }
                 }
                 if (prop.value) {
@@ -224,11 +246,29 @@ export default function plugin({ types: t, template: tmpl }: typeof b, options?:
             }
         }
         const objExp = t.objectExpression(config.requireActual ? [t.spreadElement(t.identifier("a")), ...topLevelProps] as any : topLevelProps);
-        const arrowFunc = buildArrowFunc(config.requireActual ? path : undefined)({ OBJECT_EXP: objExp }) as t.ExpressionStatement;
+        const nameStatements = statements
+        // Filter out non-existed keys
+            .filter(([key]) => {
+                const [firstKey, secondKey] = key.split(".");
+                const prop = topLevelProps.find(p => (t.isIdentifier(p.key) && p.key.name === firstKey) || (t.isStringLiteral(p.key) && p.key.value === firstKey));
+                if (!prop) {
+                    return false;
+                }
+                if (!secondKey) {
+                    return true;
+                }
+                if (!t.isObjectExpression(prop.value)) {
+                    return false;
+                }
+                const oKey = prop.value.properties.find(p =>
+                    t.isObjectProperty(p) &&
+                    ((t.isStringLiteral(p.key) && p.key.value === secondKey) || (t.isIdentifier(p.key) && p.key.name === secondKey))
+                );
+                return !!oKey;
+            })
+            .map(([key, name]) => buildNameStatement(key, name));
+        const arrowFunc = buildArrowFunc(nameStatements, config.requireActual ? path : undefined)({ OBJECT_EXP: objExp }) as t.ExpressionStatement;
         return arrowFunc.expression as t.ArrowFunctionExpression;
-        // const varDeclaration = t.variableDeclaration("const", [t.variableDeclarator(t.identifier("o"), t.objectExpression(topLevelProps))])
-
-        // return t.arrowFunctionExpression([], t.objectExpression(topLevelProps));
     }
 
     /**
@@ -297,7 +337,8 @@ export default function plugin({ types: t, template: tmpl }: typeof b, options?:
                 const mockDef = this.mocks.get(accessIdentifierName) || [];
                 mockDef.push({
                     expression: impl,
-                    subProperties: subIdentifiers
+                    subProperties: subIdentifiers,
+                    type: type,
                 });
                 this.mocks.set(accessIdentifierName, mockDef);
             }
@@ -336,7 +377,9 @@ export default function plugin({ types: t, template: tmpl }: typeof b, options?:
                             const mockArr = mocksForModule[key] || [];
                             mockArr.push({
                                 expression: m.expression,
-                                subProperty: subProperty
+                                subProperty: subProperty,
+                                type: m.type,
+                                importDef: i,
                             });
                             mocksForModule[key] = mockArr;
                         });
@@ -350,7 +393,9 @@ export default function plugin({ types: t, template: tmpl }: typeof b, options?:
                             mocksArr.push({
                                 expression: m.expression,
                                 // import { Components } from "components"; jest.mockObj(Components.MyComp); -> subProperty is "MyComp"
-                                subProperty: m.subProperties[0]
+                                subProperty: m.subProperties[0],
+                                type: m.type,
+                                importDef: i,
                             });
                         });
                         mocksForModule[moduleIdentifierName] = mocksArr;

@@ -34,6 +34,7 @@ will be transformed to:
             "C2": jest.fn().mockName("C.C2"),
         };
         Object.defineProperty(o, "__esModule", { value: true });
+        Object.defineProperty(o.C2, "name", { value: "C.C2" });
         return o;
     });
 
@@ -114,6 +115,8 @@ This will be transformed to:
             "B2": jest.fn().mockName("B2"),
         };
         Object.defineProperty(o, "__esModule", { value: true });
+        Object.defineProperty(o.B1, "name", { value: "B1" });
+        Object.defineProperty(o.B2, "name", { value: "B2" });
         return o;
     });
 ```
