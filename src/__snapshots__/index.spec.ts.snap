@@ -2,8 +2,7 @@
 
 exports[`Correct spread for overwritten deeplevel 1`] = `
 "jest.mock(\\"./e\\", () => {
-  const a = require.requireActual(\\"./e\\");
-
+  const a = jest.requireActual(\\"./e\\");
   const o = { ...a,
     \\"A\\": { ...a.A,
       \\"K\\": jest.fn().mockName(\\"E.A.K\\")
@@ -22,8 +21,7 @@ import * as E from \\"./e\\";"
 
 exports[`Correct spread for overwritten deeplevel 2`] = `
 "jest.mock(\\"./e\\", () => {
-  const a = require.requireActual(\\"./e\\");
-
+  const a = jest.requireActual(\\"./e\\");
   const o = { ...a,
     \\"A\\": \\"A\\"
   };
@@ -119,8 +117,7 @@ import X, { Y } from \\"./xy\\";"
 
 exports[`Creates jest.fn() mocks 2`] = `
 "jest.mock(\\"./xy\\", () => {
-  const a = require.requireActual(\\"./xy\\");
-
+  const a = jest.requireActual(\\"./xy\\");
   const o = { ...a,
     \\"default\\": jest.fn().mockName(\\"X\\"),
     \\"Y\\": \\"Y\\"
@@ -134,8 +131,7 @@ exports[`Creates jest.fn() mocks 2`] = `
   return o;
 });
 jest.mock(\\"./e\\", () => {
-  const a = require.requireActual(\\"./e\\");
-
+  const a = jest.requireActual(\\"./e\\");
   const o = { ...a,
     \\"A\\": { ...a.A,
       \\"K\\": jest.fn().mockName(\\"E.A.K\\")
@@ -154,8 +150,7 @@ jest.mock(\\"./e\\", () => {
   return o;
 });
 jest.mock(\\"./c\\", () => {
-  const a = require.requireActual(\\"./c\\");
-
+  const a = jest.requireActual(\\"./c\\");
   const o = { ...a,
     \\"default\\": { ...a.default,
       \\"Inner\\": jest.fn().mockName(\\"C.Inner\\")
@@ -174,8 +169,7 @@ jest.mock(\\"./c\\", () => {
   return o;
 });
 jest.mock(\\"b\\", () => {
-  const a = require.requireActual(\\"b\\");
-
+  const a = jest.requireActual(\\"b\\");
   const o = { ...a,
     \\"B\\": jest.fn().mockName(\\"B\\"),
     \\"B2\\": \\"B2\\"
@@ -189,8 +183,7 @@ jest.mock(\\"b\\", () => {
   return o;
 });
 jest.mock(\\"./a\\", () => {
-  const a = require.requireActual(\\"./a\\");
-
+  const a = jest.requireActual(\\"./a\\");
   const o = { ...a,
     \\"default\\": jest.fn().mockName(\\"A\\")
   };
@@ -268,8 +261,7 @@ import X, { Y } from \\"./xy\\";"
 
 exports[`Creates simple identify mocks 2`] = `
 "jest.mock(\\"./xy\\", () => {
-  const a = require.requireActual(\\"./xy\\");
-
+  const a = jest.requireActual(\\"./xy\\");
   const o = { ...a,
     \\"default\\": \\"X\\",
     \\"Y\\": \\"Y\\"
@@ -280,8 +272,7 @@ exports[`Creates simple identify mocks 2`] = `
   return o;
 });
 jest.mock(\\"./e\\", () => {
-  const a = require.requireActual(\\"./e\\");
-
+  const a = jest.requireActual(\\"./e\\");
   const o = { ...a,
     \\"A\\": \\"A\\",
     \\"B\\": \\"B\\"
@@ -292,8 +283,7 @@ jest.mock(\\"./e\\", () => {
   return o;
 });
 jest.mock(\\"./c\\", () => {
-  const a = require.requireActual(\\"./c\\");
-
+  const a = jest.requireActual(\\"./c\\");
   const o = { ...a,
     \\"default\\": \\"C\\",
     \\"C2\\": \\"C2\\"
@@ -304,8 +294,7 @@ jest.mock(\\"./c\\", () => {
   return o;
 });
 jest.mock(\\"b\\", () => {
-  const a = require.requireActual(\\"b\\");
-
+  const a = jest.requireActual(\\"b\\");
   const o = { ...a,
     \\"B\\": \\"B\\",
     \\"B2\\": \\"B2\\"
@@ -316,8 +305,7 @@ jest.mock(\\"b\\", () => {
   return o;
 });
 jest.mock(\\"./a\\", () => {
-  const a = require.requireActual(\\"./a\\");
-
+  const a = jest.requireActual(\\"./a\\");
   const o = { ...a,
     \\"default\\": \\"A\\"
   };
@@ -385,8 +373,7 @@ jest.unmock(\\"c\\");"
 
 exports[`Doesnt print any module mocks which have already been mocked by jest 2`] = `
 "jest.mock(\\"b\\", () => {
-  const a = require.requireActual(\\"b\\");
-
+  const a = jest.requireActual(\\"b\\");
   const o = { ...a,
     \\"B\\": \\"B\\"
   };
@@ -439,8 +426,7 @@ import * as C from \\"c\\";"
 
 exports[`Ignores 2 or more access levels for non namespaced imports and 3 or more access levels for namespaced imports 2`] = `
 "jest.mock(\\"c\\", () => {
-  const a = require.requireActual(\\"c\\");
-
+  const a = jest.requireActual(\\"c\\");
   const o = { ...a,
     \\"Nest1\\": { ...a.Nest1,
       \\"C1\\": \\"C1\\"
@@ -452,8 +438,7 @@ exports[`Ignores 2 or more access levels for non namespaced imports and 3 or mor
   return o;
 });
 jest.mock(\\"b\\", () => {
-  const a = require.requireActual(\\"b\\");
-
+  const a = jest.requireActual(\\"b\\");
   const o = { ...a
   };
   Object.defineProperty(o, \\"__esModule\\", {
@@ -462,8 +447,7 @@ jest.mock(\\"b\\", () => {
   return o;
 });
 jest.mock(\\"./a\\", () => {
-  const a = require.requireActual(\\"./a\\");
-
+  const a = jest.requireActual(\\"./a\\");
   const o = { ...a,
     \\"default\\": { ...a.default,
       \\"A2\\": \\"A2\\"
@@ -494,8 +478,7 @@ import A from \\"./a\\";"
 
 exports[`Ignores identifiers without imports 2`] = `
 "jest.mock(\\"./a\\", () => {
-  const a = require.requireActual(\\"./a\\");
-
+  const a = jest.requireActual(\\"./a\\");
   const o = { ...a,
     \\"default\\": \\"A\\"
   };
@@ -532,8 +515,7 @@ import { B, B2 } from \\"b\\";"
 
 exports[`Last mock specifier redefines the previous one 2`] = `
 "jest.mock(\\"b\\", () => {
-  const a = require.requireActual(\\"b\\");
-
+  const a = jest.requireActual(\\"b\\");
   const o = { ...a,
     \\"B\\": \\"test3\\"
   };
@@ -543,8 +525,7 @@ exports[`Last mock specifier redefines the previous one 2`] = `
   return o;
 });
 jest.mock(\\"./a\\", () => {
-  const a = require.requireActual(\\"./a\\");
-
+  const a = jest.requireActual(\\"./a\\");
   const o = { ...a,
     \\"default\\": \\"A\\"
   };
@@ -598,8 +579,7 @@ import * as C from \\"c\\";"
 
 exports[`Last mocked namespace overwrites nested level mocks 2`] = `
 "jest.mock(\\"c\\", () => {
-  const a = require.requireActual(\\"c\\");
-
+  const a = jest.requireActual(\\"c\\");
   const o = { ...a,
     \\"C1\\": \\"C1\\",
     \\"Nest\\": jest.fn()
@@ -610,8 +590,7 @@ exports[`Last mocked namespace overwrites nested level mocks 2`] = `
   return o;
 });
 jest.mock(\\"b\\", () => {
-  const a = require.requireActual(\\"b\\");
-
+  const a = jest.requireActual(\\"b\\");
   const o = { ...a,
     \\"B\\": { ...a.B,
       \\"B1\\": \\"test\\"
@@ -623,8 +602,7 @@ jest.mock(\\"b\\", () => {
   return o;
 });
 jest.mock(\\"./a\\", () => {
-  const a = require.requireActual(\\"./a\\");
-
+  const a = jest.requireActual(\\"./a\\");
   const o = { ...a,
     \\"default\\": \\"A\\",
     \\"ANest\\": { ...a.ANest,
@@ -700,8 +678,7 @@ import X, { Y } from \\"./xy\\";"
 
 exports[`Merges different mockObj calls into single module mock 2`] = `
 "jest.mock(\\"./xy\\", () => {
-  const a = require.requireActual(\\"./xy\\");
-
+  const a = jest.requireActual(\\"./xy\\");
   const o = { ...a,
     \\"default\\": \\"X\\",
     \\"Y\\": \\"Y\\"
@@ -712,8 +689,7 @@ exports[`Merges different mockObj calls into single module mock 2`] = `
   return o;
 });
 jest.mock(\\"./e\\", () => {
-  const a = require.requireActual(\\"./e\\");
-
+  const a = jest.requireActual(\\"./e\\");
   const o = { ...a,
     \\"A\\": \\"A\\",
     \\"B\\": \\"B\\"
@@ -724,8 +700,7 @@ jest.mock(\\"./e\\", () => {
   return o;
 });
 jest.mock(\\"./c\\", () => {
-  const a = require.requireActual(\\"./c\\");
-
+  const a = jest.requireActual(\\"./c\\");
   const o = { ...a,
     \\"default\\": \\"C\\",
     \\"C2\\": \\"C2\\"
@@ -736,8 +711,7 @@ jest.mock(\\"./c\\", () => {
   return o;
 });
 jest.mock(\\"b\\", () => {
-  const a = require.requireActual(\\"b\\");
-
+  const a = jest.requireActual(\\"b\\");
   const o = { ...a,
     \\"B\\": \\"B\\",
     \\"B2\\": \\"B2\\"
@@ -748,8 +722,7 @@ jest.mock(\\"b\\", () => {
   return o;
 });
 jest.mock(\\"./a\\", () => {
-  const a = require.requireActual(\\"./a\\");
-
+  const a = jest.requireActual(\\"./a\\");
   const o = { ...a,
     \\"default\\": \\"A\\"
   };
@@ -805,8 +778,7 @@ exports[`Puts mock after 'use strict' statement 2`] = `
 "\\"use strict\\";
 
 jest.mock(\\"c\\", () => {
-  const a = require.requireActual(\\"c\\");
-
+  const a = jest.requireActual(\\"c\\");
   const o = { ...a,
     \\"A\\": \\"A\\"
   };
@@ -816,8 +788,7 @@ jest.mock(\\"c\\", () => {
   return o;
 });
 jest.mock(\\"b\\", () => {
-  const a = require.requireActual(\\"b\\");
-
+  const a = jest.requireActual(\\"b\\");
   const o = { ...a,
     \\"B\\": \\"B\\"
   };
@@ -827,8 +798,7 @@ jest.mock(\\"b\\", () => {
   return o;
 });
 jest.mock(\\"./a\\", () => {
-  const a = require.requireActual(\\"./a\\");
-
+  const a = jest.requireActual(\\"./a\\");
   const o = { ...a,
     \\"default\\": \\"A\\",
     \\"ANest\\": \\"ANest\\"
@@ -915,8 +885,7 @@ nonMocked(Y);"
 
 exports[`Works with custom identifiers 2`] = `
 "jest.mock(\\"./xy\\", () => {
-  const a = require.requireActual(\\"./xy\\");
-
+  const a = jest.requireActual(\\"./xy\\");
   const o = { ...a,
     \\"default\\": \\"X\\"
   };
@@ -926,8 +895,7 @@ exports[`Works with custom identifiers 2`] = `
   return o;
 });
 jest.mock(\\"./e\\", () => {
-  const a = require.requireActual(\\"./e\\");
-
+  const a = jest.requireActual(\\"./e\\");
   const o = { ...a,
     \\"A\\": jest.fn().mockName(\\"E.A\\"),
     \\"B\\": jest.fn().mockName(\\"E.B\\")
@@ -944,8 +912,7 @@ jest.mock(\\"./e\\", () => {
   return o;
 });
 jest.mock(\\"./c\\", () => {
-  const a = require.requireActual(\\"./c\\");
-
+  const a = jest.requireActual(\\"./c\\");
   const o = { ...a,
     \\"default\\": jest.fn().mockName(\\"C\\")
   };
@@ -958,8 +925,7 @@ jest.mock(\\"./c\\", () => {
   return o;
 });
 jest.mock(\\"b\\", () => {
-  const a = require.requireActual(\\"b\\");
-
+  const a = jest.requireActual(\\"b\\");
   const o = { ...a,
     \\"B\\": \\"B\\",
     \\"B2\\": \\"B2\\"
@@ -970,8 +936,7 @@ jest.mock(\\"b\\", () => {
   return o;
 });
 jest.mock(\\"./a\\", () => {
-  const a = require.requireActual(\\"./a\\");
-
+  const a = jest.requireActual(\\"./a\\");
   const o = { ...a,
     \\"default\\": jest.fn().mockName(\\"A\\")
   };
@@ -1051,8 +1016,7 @@ import X, { Y } from \\"./xy\\";"
 
 exports[`Works with custom mock implementation as second argument 2`] = `
 "jest.mock(\\"./xy\\", () => {
-  const a = require.requireActual(\\"./xy\\");
-
+  const a = jest.requireActual(\\"./xy\\");
   const o = { ...a,
     \\"default\\": \\"X\\"
   };
@@ -1062,8 +1026,7 @@ exports[`Works with custom mock implementation as second argument 2`] = `
   return o;
 });
 jest.mock(\\"./e\\", () => {
-  const a = require.requireActual(\\"./e\\");
-
+  const a = jest.requireActual(\\"./e\\");
   const o = { ...a,
     \\"A\\": true,
     \\"B\\": \\"B\\"
@@ -1074,8 +1037,7 @@ jest.mock(\\"./e\\", () => {
   return o;
 });
 jest.mock(\\"./c\\", () => {
-  const a = require.requireActual(\\"./c\\");
-
+  const a = jest.requireActual(\\"./c\\");
   const o = { ...a,
     \\"default\\": jest.fn(),
     \\"C2\\": \\"C2\\"
@@ -1086,8 +1048,7 @@ jest.mock(\\"./c\\", () => {
   return o;
 });
 jest.mock(\\"b\\", () => {
-  const a = require.requireActual(\\"b\\");
-
+  const a = jest.requireActual(\\"b\\");
   const o = { ...a,
     \\"B\\": () => {},
     \\"B2\\": \\"B2\\"
@@ -1098,8 +1059,7 @@ jest.mock(\\"b\\", () => {
   return o;
 });
 jest.mock(\\"./a\\", () => {
-  const a = require.requireActual(\\"./a\\");
-
+  const a = jest.requireActual(\\"./a\\");
   const o = { ...a,
     \\"default\\": \\"test\\"
   };
@@ -1163,8 +1123,7 @@ import * as C from \\"c\\";"
 
 exports[`Works with object access expressions one level deep 2`] = `
 "jest.mock(\\"c\\", () => {
-  const a = require.requireActual(\\"c\\");
-
+  const a = jest.requireActual(\\"c\\");
   const o = { ...a,
     \\"C1\\": \\"C1\\",
     \\"Nest\\": { ...a.Nest,
@@ -1179,8 +1138,7 @@ exports[`Works with object access expressions one level deep 2`] = `
   return o;
 });
 jest.mock(\\"b\\", () => {
-  const a = require.requireActual(\\"b\\");
-
+  const a = jest.requireActual(\\"b\\");
   const o = { ...a,
     \\"B\\": { ...a.B,
       \\"B1\\": \\"test\\"
@@ -1192,8 +1150,7 @@ jest.mock(\\"b\\", () => {
   return o;
 });
 jest.mock(\\"./a\\", () => {
-  const a = require.requireActual(\\"./a\\");
-
+  const a = jest.requireActual(\\"./a\\");
   const o = { ...a,
     \\"default\\": { ...a.default,
       \\"A1\\": \\"A1\\",

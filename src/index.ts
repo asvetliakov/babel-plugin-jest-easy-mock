@@ -180,7 +180,7 @@ export default function plugin({ types: t, template: tmpl }: typeof b, options?:
 
     const buildArrowFunc = (statements: string[], modulePath?: string) => tmpl(`
         () => {
-            ${modulePath ? `const a = require.requireActual("${modulePath}");` : ""}
+            ${modulePath ? `const a = jest.requireActual("${modulePath}");` : ""}
             const o = OBJECT_EXP;
             Object.defineProperty(o, "__esModule", { value: true });
             ${statements.length > 0 ? statements.join("\n") : ""}
@@ -316,7 +316,9 @@ export default function plugin({ types: t, template: tmpl }: typeof b, options?:
                     if (t.isIdentifier(obj)) {
                         accessIdentifierName = obj.name;
                     }
-                    subIdentifiers.push(lastIdentifier);
+                    if (lastIdentifier) {
+                        subIdentifiers.push(lastIdentifier);
+                    }
                 }
                 if (!lastIdentifier || !accessIdentifierName) {
                     return;
